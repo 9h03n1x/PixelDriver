@@ -1,0 +1,6 @@
+{
+  "appTitle": "Pixel Co-Driver",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
