@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:geekyants_flutter_gauges/geekyants_flutter_gauges.dart';
+import 'package:pixeldriver/src/features/services/sensor_service.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
 /// Displays detailed information about a SampleItem.
@@ -75,6 +76,7 @@ class SensorPageView extends StatelessWidget {
     var v0 = 0.0;
     var tempAcc = UserAccelerometerEvent(0.0, 0.0, 0.0, DateTime.now());
     var tempGyro = GyroscopeEvent(0.0, 0.0, 0.0, DateTime.now());
+    SensorService sService = SensorService();
 
     return Scaffold(
       appBar: AppBar(
@@ -84,8 +86,7 @@ class SensorPageView extends StatelessWidget {
         ListTile(
           title: Text("Speed"),
           subtitle: StreamBuilder<Object>(
-              stream: userAccelerometerEventStream(
-                  samplingPeriod: Duration(milliseconds: 100)),
+              stream: sService.StreamSpeedEvent(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return CircularProgressIndicator();
@@ -94,17 +95,13 @@ class SensorPageView extends StatelessWidget {
                 if (snapshot.hasError) {
                   return Text("Error in Stream");
                 } else {
-                  UserAccelerometerEvent evt =
-                      snapshot.data as UserAccelerometerEvent;
-                  tempAcc = evt;
-                  var listAcc = [tempAcc.x, tempAcc.y, tempAcc.z];
-                  var listGyr = [tempGyro.x, tempGyro.y, tempGyro.z];
+                  double evt = snapshot.data as double;
                   return Column(
                     children: [
                       RadialGauge(
                         track: RadialTrack(
                             start: 0,
-                            end: 20,
+                            end: 200,
                             startAngle: -30,
                             endAngle: 210,
                             trackStyle: TrackStyle(
@@ -115,13 +112,10 @@ class SensorPageView extends StatelessWidget {
                           NeedlePointer(
                             needleWidth: 10,
                             tailRadius: 40,
-                            value: calculateSpeedWithGyro(listAcc, listAcc),
+                            value: evt,
                           ),
                         ],
                       ),
-                      Text('X: ${evt.x.toString().substring(0, 6)}'),
-                      Text('Y: ${evt.y.toString().substring(0, 6)}'),
-                      Text('Z: ${evt.z.toString().substring(0, 6)}')
                     ],
                   );
                 }
